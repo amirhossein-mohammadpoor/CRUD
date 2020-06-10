@@ -115,4 +115,3 @@ edit = elemObj => {
     $(editElemObj).closest("tr").find("td").eq(5).text()
   )
 }
-
