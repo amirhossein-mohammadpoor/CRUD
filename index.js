@@ -1,13 +1,13 @@
-const bgColor = [
-  "bg-primary",
-  "bg-success",
-  "bg-warning",
-  "bg-danger",
-  "bg-info"
-]
 let i
 phonebookTable = () => {
   const phonebook = JSON.parse(localStorage.getItem("phonebook"))
+  const bgColor = [
+    "bg-primary",
+    "bg-success",
+    "bg-warning",
+    "bg-danger",
+    "bg-info"
+  ]
   for (i = 0; i < phonebook.length; i++) {
     $("tbody").append(
       $(`
@@ -35,20 +35,31 @@ phonebookTable = () => {
 $("document").ready(function () {
   if (!localStorage.getItem("phonebook"))
     localStorage.setItem("phonebook", JSON.stringify([]))
+  else
   phonebookTable()
 })
 
-$("#sign").on("click", function () {
+$("#signPhoneNumber").on("click", function () {
   const inputs = $("form").first().serializeArray()
+  if (!signInputValidation(inputs))
+    return
+  $("#signModal").modal("hide")
   const phonebook = JSON.parse(localStorage.getItem("phonebook"))
   phonebook.push({
-    name: inputs[0].value,
-    subname: inputs[1].value,
-    email: inputs[2].value,
-    phone: inputs[3].value,
-    address: inputs[4].value
+    name: inputs[0].value.trim(),
+    subname: inputs[1].value.trim(),
+    email: inputs[2].value.trim(),
+    phone: inputs[3].value.trim(),
+    address: inputs[4].value.trim()
   })
   localStorage.setItem("phonebook", JSON.stringify(phonebook))
+  const bgColor = [
+    "bg-primary",
+    "bg-success",
+    "bg-warning",
+    "bg-danger",
+    "bg-info"
+  ]
   $("tbody").append(
     $(`
       <tr class='${bgColor[(i/2)%4]}'>
@@ -83,8 +94,11 @@ remove = elemObj => {
   phonebookTable()
 }
 
-$("#edit").on("click", function () {
+$("#editPhoneNumber").on("click", function () {
   const inputs = $("form").last().serializeArray()
+  if (!editInputValidation(inputs))
+    return
+  $("#editModal").modal("hide")
   const phonebook = JSON.parse(localStorage.getItem("phonebook"))
   phonebook.splice(
     $(editElemObj).closest("tr").find("td").first().text() - 1,
@@ -92,9 +106,9 @@ $("#edit").on("click", function () {
     {
       name: $(editElemObj).closest("tr").find("td").eq(1).text(),
       subname: $(editElemObj).closest("tr").find("td").eq(2).text(),
-      email: inputs[0].value,
-      phone: inputs[1].value,
-      address: inputs[2].value
+      email: inputs[0].value.trim(),
+      phone: inputs[1].value.trim(),
+      address: inputs[2].value.trim()
     }
   )
   localStorage.setItem("phonebook", JSON.stringify(phonebook))
@@ -114,4 +128,52 @@ edit = elemObj => {
   $("form").last().find("input").eq(2).val(
     $(editElemObj).closest("tr").find("td").eq(5).text()
   )
+}
+
+signInputValidation = inputs => {
+  let flag = true
+  let errorMessage
+  if (!/^\w+$/.test(inputs[0].value)) {
+    errorMessage += "invalid name\n"
+    flag = false
+  }
+  if (!/^\w+$/.test(inputs[1].value)) {
+    errorMessage += "invalid subname\n"
+    flag = false
+  }
+  if (!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(inputs[2].value)) {
+    errorMessage += "invalid email\n"
+    flag = false
+  }
+  if (!/^\d+$/.test(inputs[3].value)) {
+    errorMessage += "invalid phone number\n"
+    flag = false
+  }
+  if(!inputs[4].value.trim()) {
+    errorMessage += "invalid address"
+    flag = false
+  }
+  if (!flag)
+    alert(errorMessage)
+  return flag
+}
+
+editInputValidation = inputs => {
+  let flag = true
+  let errorMessage
+  if (!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(inputs[0].value)) {
+    errorMessage += "invalid email\n"
+    flag = false
+  }
+  if (!/^\d+$/.test(inputs[1].value)) {
+    errorMessage += "invalid phone number\n"
+    flag = false
+  }
+  if (!inputs[2].value.trim()) {
+    errorMessage += "invalid address"
+    flag = false
+  }
+  if (!flag)
+    alert(errorMessage)
+  return flag
 }
